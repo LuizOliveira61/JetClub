@@ -40,6 +40,7 @@ cotista = 'Não encontrado'
 for x in cotistas:
     if login == x['login'] and senha == x['senha']:
         cotista = x['nome']
+        status = x['status']
 
 if cotista != 'Não encontrado':
     st.text(f'Bem vindo, {cotista}')
@@ -63,4 +64,7 @@ if cotista != 'Não encontrado':
 
     if agendado == False:
         if st.button('Reservar') and agendado == False:
-            st.success('Reserva realizada com sucesso!')
+            if status == 'Pago':
+                st.success('Reserva realizada com sucesso!')
+            if status == 'Devedor':
+                st.error('Acerte a sua mensalidade!')
