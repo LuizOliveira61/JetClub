@@ -6,23 +6,27 @@ cotistas = [
         'login': 'luizeduardo',
         'senha': 'luiz123',
         'nome': 'LUIZ EDUARDO',
-        'lancha': ['Lancha 01', 'Lancha 02']
+        'lancha': ['Lancha 01', 'Lancha 02'],
+        'status': 'Pago'
     },
     {
         'login': 'vicmendon',
         'senha': 'vic123',
         'nome': 'VICTOR',
-        'lancha': ['Lancha 05']
+        'lancha': ['Lancha 05'],
+        'status': 'Pago'
     },    {
-        'login': 'hayassy',
-        'senha': 'hay123',
-        'nome': 'RAFAEL HAYASSY',
-        'lancha': ['Lancha 03', 'JETSKY 03']
+        'login': 'teste',
+        'senha': 'testando123',
+        'nome': 'Luiz Carlos JetClub',
+        'lancha': ['Lancha 03', 'JETSKY 03'],
+        'status': 'Devedor'
     },    {
         'login': 'admin',
         'senha': 'admin',
         'nome': 'ADMINISTRADOR',
-        'lancha': ['Lancha 01', 'Lancha 02']
+        'lancha': ['Lancha 01', 'Lancha 02'],
+        'status': 'Pago'
     }
             ]
 
