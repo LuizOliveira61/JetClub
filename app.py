@@ -80,11 +80,12 @@ def conserta_data(info, nova_data):
 #     con.commit()
 #     con.close()
 
-def add_cotista(nome, login, senha, lancha, status):
+def add_cotista(nome, nascimento, cpf, endereco, bairro, cidade, uf, login, senha, lancha, status, email, celular):
 
     con, cursor = conectar_db()
 
-    cursor.execute(f"INSERT INTO cotistas VALUES (NULL, '{nome}', '{login}', '{senha}', '{lancha}', '{status}')")
+    cursor.execute(f"INSERT INTO cotistas VALUES (NULL, '{nome}', '{nascimento}', '{cpf}', '{endereco}', '{bairro}',"
+                   f" '{cidade}', '{uf}', '{login}', '{senha}', '{lancha}', '{status}', '{email}', '{celular}')")
 
     con.commit()
     con.close()
@@ -319,10 +320,10 @@ def cons_cotista(login):
     for x in infos:
         id_cotista = x[0]
         nome = x[1]
-        login = x[2]
-        senha = x[3]
-        lancha = x[4]
-        status = x[5]
+        login = x[8]
+        senha = x[9]
+        lancha = x[10]
+        status = x[11]
         cotistas.append({'id': id_cotista,
                          'nome': nome,
                          'login': login,
@@ -429,6 +430,31 @@ def cons_todos_agendamentos_sem_id():
 
     return agendamentos
 
+
+def cons_log_geral():
+
+    con, cursor = conectar_db()
+
+    pesquisa = cursor.execute(f"select * from log")
+    infos = pesquisa.fetchall()
+
+    log = []
+    for x in infos:
+        id_log = x[0]
+        login = x[1]
+        registro = x[2]
+        data = x[3]
+        log.append({'id': id_log,
+                    'login': login,
+                    'registro': registro,
+                    'data': data
+                    })
+
+    con.commit()
+    con.close()
+
+    return log
+
 #==============================
 
 # image = Image.open('foto.jpg')
@@ -438,6 +464,7 @@ def cons_todos_agendamentos_sem_id():
 # cons_cotista('vicmendon')
 
 login = st.sidebar.text_input(label='Login')
+login = login.lower()
 
 senha_digitada = st.sidebar.text_input(label='Senha', type='password')
 
@@ -568,7 +595,9 @@ if cotista == 'Administrador':
                                                                'Consultar Agendamentos',
                                                                'Editar Agendamentos',
                                                                'Histórico de Uso',
-                                                               'Cadastrar Cotista'])
+                                                               'Cadastrar Cotista',
+                                                               'Alterar Status de Pagamento',
+                                                               'Log de eventos'])
 
     if painel == 'Consultar Agendamentos':
 
@@ -595,7 +624,7 @@ if cotista == 'Administrador':
         containerConsAgenda.header('Eventos agendados')
         containerConsAgenda.dataframe(data=todos_agendamentos)
 
-    if painel == 'Editar Agendamentos':
+    elif painel == 'Editar Agendamentos':
 
         todos_agendamentos = cons_todos_agendamentos()
 
@@ -607,6 +636,115 @@ if cotista == 'Administrador':
         containerEditAgenda.info('Selecione o agendamento que deseja alterar')
         containerEditAgenda.selectbox('', options=todos_agendamentos)
 
-    if painel == 'Cadastrar Cotista':
+
+    elif painel == 'Cadastrar Cotista':
 
         st.header('Formulário de cadastro')
+
+        with st.form(key='cadastra_cotista') as form_cad:
+            cad_nome = st.text_input(label='Nome', max_chars=50)
+            cad_nome = cad_nome.title()
+            if len(cad_nome) < 5 and cad_nome != '':
+                st.error('Preencha Nome e Sobrenome')
+                cad_nome = ''
+            dataantiga = datetime.now()
+            menos18 = dataantiga.replace(2003, 1, 1)
+            cad_nascimento = st.date_input(label='Nascimento', value=menos18, min_value=menos18)
+
+            cad_nascimento = cad_nascimento.strftime("%d/%m/%Y")
+
+            st.write(cad_nascimento)
+
+            cad_cpf = st.text_input(label='CPF (apenas números)', help='CPF requer 11 dígitos', max_chars=11)
+            len_cpf = len(cad_cpf)
+            try:
+                cad_cpf = int(cad_cpf)
+                if len_cpf != 11:
+                    st.error('Padrão de CPF incorreto.')
+            except Exception as e:
+                if cad_cpf != '':
+                    st.error('O campo CPF aceita apenas números')
+            cad_login = st.text_input(label='Login', help='Apenas letras e sem espaços')
+            if ' ' in cad_login:
+                st.error('o Login não pode ter espaços')
+                cad_login = ''
+            cad_senha = st.text_input(label='Senha', type='password', help='Entre 6 e 16 caracteres. Letra maiúscula, letra minúscula, números e caracteres especiais (** ! @ # $ % * **)')
+            minuscula = False
+            maiuscula = False
+            numero = False
+            simbolo = False
+            letra = False
+            carac_espec = ['!', '@', '#', '$', '%', '*']
+            nums = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+            if len(cad_senha) > 5 and len(cad_senha) < 17:
+                for x in cad_senha:
+                    if x in carac_espec:
+                        simbolo = True
+                    if x in nums:
+                        numero = True
+                    if x.isupper():
+                        maiuscula = True
+                    if x.islower():
+                        minuscula = True
+            else:
+                if cad_senha != '':
+                    st.error('Senha muito pequena')
+                    cad_senha = ''
+            if simbolo is True and numero is True and maiuscula is True and minuscula is True:
+                cad_senha = cad_senha
+            else:
+                cad_senha = ''
+                if cad_senha != '':
+                    st.error('Senha necessita ter entre 6 e 16 caracteres. Letra maiúscula, letra minúscula, números e caracteres especiais (** ! @ # $ % * **)')
+            cad_email = st.text_input(label='Email')
+            if '@' not in cad_email and cad_email != '':
+                st.error('Preencha um email válido!')
+                cad_email = ''
+            cad_celular = st.text_input(label='Celular (somente números)', max_chars=11)
+            try:
+                cad_celular = int(cad_celular)
+            except Exception as e:
+                cad_celular = ''
+                if cad_celular != '':
+                    st.error('Digite apenas NÚMEROS')
+
+            st.markdown('<hr>', True)
+
+            cad_endereco = st.text_input(label='Endereço (opcional)')
+            cad_bairro = st.text_input(label='Bairro (opcional)')
+            cad_cidade = st.text_input(label='Cidade (opcional)')
+            cad_uf = st.text_input(label='UF (opcional)')
+
+            st.markdown('<hr>', True)
+
+            cad_lancha = st.selectbox(label='Embarcação', options=['[SELECIONE]', 'Jet 1', 'Jet 2', 'Lancha 1', 'Lancha 2'])
+            if cad_lancha == '[SELECIONE]':
+                cad_lancha = ''
+            cad_status = st.selectbox(label='Status de Pagamento', options=['[SELECIONE]', 'Pago', 'Devedor'])
+            if cad_status == '[SELECIONE]':
+                cad_status = ''
+
+            st.markdown('', True)
+
+            submit = st.form_submit_button(label='Cadastrar')
+
+        if submit:
+            if cad_nome != '' and cad_cpf and cad_login != '' and cad_senha and cad_email and cad_celular and cad_lancha != '' and cad_status!= '':
+                try:
+                    add_cotista(cad_nome, cad_nascimento, cad_cpf, cad_endereco, cad_bairro, cad_cidade, cad_uf, cad_login, cad_senha, cad_lancha, cad_status, cad_email, cad_celular)
+                    st.success('Usuário cadastrado com Sucesso!')
+                    time.sleep(3)
+                    st.experimental_rerun()
+                except Exception as e:
+                    st.write(e)
+            else:
+                st.error('Preencha os campos corretamente!')
+
+
+    elif painel == 'Log de eventos':
+
+        st.header('Log de eventos')
+
+        logs = cons_log_geral()
+
+        st.dataframe(data=logs)
