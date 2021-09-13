@@ -49,7 +49,6 @@ def consultar_db(login):
 
     return nome, senha, lanchas, status, agenda
 
-#add_login(3, 'vicmendon', '123', 'Victor', ['Itaipu','Paquetá'], 'Pago', ' ')
 
 def conserta_data(info, nova_data):
     lista = []
@@ -62,23 +61,6 @@ def conserta_data(info, nova_data):
     lista = lista.replace("'",'').replace('\\','').replace('\t','').replace(' ','').replace('[','').replace(']','')
     return lista
 
-
-# def add_data(login, data):
-#     con, cursor = conectar_db()
-#
-#     nome, senha, lanchas, status, agenda = consultar_db(login)
-#
-#     agenda_nova = conserta_data(agenda, data)
-#
-# #    agenda.append(data)
-#
-# #    agenda = str(agenda)
-#
-#     cursor.execute(f"UPDATE jetclub SET agenda = '{agenda_nova}' WHERE login = '{login}'")
-#     #cursor.execute(f"INSERT INTO jetclub VALUES ('{data}')")
-#
-#     con.commit()
-#     con.close()
 
 def add_cotista(nome, nascimento, cpf, endereco, bairro, cidade, uf, login, senha, lancha, status, email, celular):
 
@@ -477,7 +459,7 @@ if len(ret_cotista) > 0:
     senha = ret_cotista[0]['senha']
     lancha = ret_cotista[0]['lancha']
     status = ret_cotista[0]['status']
-if len(ret_cotista) == 0:
+if len(ret_cotista) == 0 and login != '':
     st.sidebar.error('Usuário não encontrado')
 
 cotista = 'Não encontrado'
@@ -487,7 +469,7 @@ if senha == senha_digitada:
     cotista = nome
     status = status
     barco = lancha
-elif senha_digitada != senha:
+elif senha_digitada != senha and senha_digitada != '':
     st.sidebar.error('Senha incorreta!')
     add_log(login, f'Senha incorreta ({senha_digitada})')
 
